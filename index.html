@@ -40,6 +40,7 @@
             border: none;
             border-radius: 50%;
             cursor: pointer;
+            text-align: center;
         }
         .button:hover {
             background-color: #45a049;
@@ -78,9 +79,24 @@
             <button class="button" onclick="appendCharacter('(-)')">(-)</button>
             <button class="button" onclick="appendCharacter('tax')">税</button>
             <button class="button" onclick="appendCharacter('area')">面積</button>
+            <button class="button" onclick="appendCharacter('peso')">peso</button>
+            <button class="button" onclick="appendCharacter('dollar')">dollar</button>
+            <button class="button" onclick="appendCharacter('won')">won</button>
+            <button class="button" onclick="appendCharacter('yuan')">yuan</button>
+            <button class="button" onclick="appendCharacter('euro')">euro</button>
+            <button class="button" onclick="appendCharacter('rupee')">rupee</button>
         </div>
     </div>
     <script>
+        const exchangeRates = {
+            peso: 0.056,
+            dollar: 1,
+            won: 0.00075,
+            yuan: 0.14,
+            euro: 1.1,
+            rupee: 0.012
+        };
+
         function appendCharacter(character) {
             const display = document.getElementById('display');
             display.value += character;
@@ -89,9 +105,9 @@
         function calculate() {
             const display = document.getElementById('display');
             try {
-                const expression = display.value
+                let expression = display.value
                     .replace(/√/g, 'Math.sqrt')
-                    .replace(/log/g, 'Math.log')
+                    .replace(/log/g, 'Math.log10')
                     .replace(/sin/g, 'Math.sin')
                     .replace(/cos/g, 'Math.cos')
                     .replace(/tan/g, 'Math.tan')
@@ -99,9 +115,15 @@
                     .replace(/π/g, '3.1415926535')
                     .replace(/e/g, '2.7182818284')
                     .replace(/%/g, '/100')
-                    .replace(/(-)/g, '-')
                     .replace(/tax/g, '*1.1') // 税率10%
-                    .replace(/area/g, '**2');
+                    .replace(/area/g, '**2'); // 面積計算
+
+                // 通貨換算
+                for (const [currency, rate] of Object.entries(exchangeRates)) {
+                    const regex = new RegExp(`${currency}`, 'g');
+                    expression = expression.replace(regex, `*${rate}`);
+                }
+
                 display.value = eval(expression);
             } catch (error) {
                 display.value = 'エラー';
